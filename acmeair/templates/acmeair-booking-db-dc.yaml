@@ -103,7 +103,7 @@ spec:
       {{- end }}
       volumes:
       - name: acmeair-booking-db-data
-        emptyDir: {}
+        emptyDir:
           medium: Memory
   test: false
   triggers:

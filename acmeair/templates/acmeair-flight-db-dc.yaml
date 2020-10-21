@@ -102,7 +102,7 @@ spec:
       {{- end }}
       volumes:
       - name: acmeair-flight-db-data
-        emptyDir: {}
+        emptyDir: 
           medium: Memory
   test: false
   triggers:
