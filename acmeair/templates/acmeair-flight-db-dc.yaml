@@ -101,9 +101,9 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       volumes:
-      - emptyDir: {}
+      - name: acmeair-flight-db-data
+        emptyDir: {}
           medium: Memory
-        name: acmeair-flight-db-data
   test: false
   triggers:
   - imageChangeParams:
