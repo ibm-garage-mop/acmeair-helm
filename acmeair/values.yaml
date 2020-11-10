@@ -22,7 +22,7 @@ mongodb:
 
 acmeairFlight:
   image:
-    repository: image-registry.openshift-image-registry.svc:5000/acmeair-mp33/acmeair-flightservice-java
+    repository: quay.io/schabrolles/acmeair-flightservice-java_ppc64le
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
     tag: latest
@@ -35,7 +35,7 @@ acmeairFlight:
 
 acmeairCustomer:
   image:
-    repository: image-registry.openshift-image-registry.svc:5000/acmeair-mp33/acmeair-customerservice-java
+    repository: quay.io/schabrolles/acmeair-customerservice-java_ppc64le
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
     tag: latest
@@ -48,7 +48,7 @@ acmeairCustomer:
 
 acmeairBooking:
   image:
-    repository: image-registry.openshift-image-registry.svc:5000/acmeair-mp33/acmeair-bookingservice-java
+    repository: quay.io/schabrolles/acmeair-bookingservice-java_ppc64le
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
     tag: latest
@@ -61,14 +61,14 @@ acmeairBooking:
 
 acmeairAuth:
   image:
-    repository: image-registry.openshift-image-registry.svc:5000/acmeair-mp33/acmeair-authservice-java
+    repository: quay.io/schabrolles/acmeair-authservice-java_ppc64le
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
     tag: latest
 
 acmeairMain:
   image:
-    repository: image-registry.openshift-image-registry.svc:5000/acmeair-mp33/acmeair-mainservice-java
+    repository: quay.io/schabrolles/acmeair-mainservice-java_ppc64le
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
     tag: latest
