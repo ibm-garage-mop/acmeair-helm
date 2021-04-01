@@ -6,7 +6,7 @@ lint Helm Charts:
     entrypoint: ["/bin/sh", "-c"]
   stage: test
   script:
-    - helm lint acmeair/*
+    - helm lint *
     #- for dir in */helm/*/Chart* ; do helm lint ${dir%Chart*} ; done 
 
 pages:
@@ -21,7 +21,7 @@ pages:
     - mkdir -p ./public
     - "echo \"User-Agent: *\nDisallow: /\" > ./public/robots.txt"
     #- helm package */helm/* --destination ./public
-    - for dir in */acmeair ; do helm package ${dir%Chart*} --destination ./public ; done
+    - for dir in * ; do helm package ${dir%Chart*} --destination ./public ; done
     - cd ./public
     - helm repo index --debug --url https://${CI_PROJECT_NAMESPACE}.gitlab.io/${CI_PROJECT_NAME} .
     - ls -l 
