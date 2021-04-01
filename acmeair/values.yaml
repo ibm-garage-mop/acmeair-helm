@@ -77,6 +77,10 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
+
+istio:
+  enabled: false
+
 serviceAccount:
   # Specifies whether a service account should be created
   create: true
@@ -89,6 +93,7 @@ serviceAccount:
 podAnnotations: 
   prometheus.io/port: "9080"
   prometheus.io/scrape: "true"
+  sidecar.istio.io/inject: "true"
 
 podSecurityContext: {}
   # fsGroup: 2000

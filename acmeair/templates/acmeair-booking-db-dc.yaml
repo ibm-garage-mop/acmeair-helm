@@ -23,7 +23,11 @@ spec:
     {{- end }}
       labels:
         name: {{ include "acmeair.fullname" . }}-booking-db
-        {{- include "acmeair.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/version: "{{ .Values.mongodb.image.tag }}"
+        version: "{{ .Values.mongodb.image.tag }}"
+        app.kubernetes.io/name: booking-db
+        app: booking-db
+        app.kubernetes.io/part-of: {{ include "acmeair.fullname" . }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:

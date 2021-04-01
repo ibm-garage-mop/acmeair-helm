@@ -22,7 +22,11 @@ spec:
     {{- end }}
       labels:
         name: {{ include "acmeair.fullname" . }}-flight-db
-        {{- include "acmeair.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/version: "{{ .Values.mongodb.image.tag }}"
+        version: "{{ .Values.mongodb.image.tag }}"
+        app.kubernetes.io/name: flight-db
+        app: flight-db
+        app.kubernetes.io/part-of: {{ include "acmeair.fullname" . }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:

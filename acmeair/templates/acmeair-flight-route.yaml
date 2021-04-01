@@ -1,3 +1,4 @@
+{{- if not .Values.istio.enabled }}
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
@@ -11,3 +12,4 @@ spec:
     name: {{ include "acmeair.fullname" . }}-flight-service
     weight: 100
   wildcardPolicy: None
+{{- end }}

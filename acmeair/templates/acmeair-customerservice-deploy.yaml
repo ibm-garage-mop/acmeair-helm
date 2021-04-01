@@ -12,8 +12,7 @@ spec:
 {{- end }}
   selector:
     matchLabels:
-      name: {{ include "acmeair.fullname" . }}-customer-deployment
-      {{- include "acmeair.selectorLabels" . | nindent 6 }}
+      name: {{ include "acmeair.fullname" . }}-customer
   template:
     metadata:
     {{- with .Values.podAnnotations }}
@@ -21,8 +20,12 @@ spec:
         {{- toYaml . | nindent 8 }}
     {{- end }}
       labels:
-        name: {{ include "acmeair.fullname" . }}-customer-deployment
-        {{- include "acmeair.selectorLabels" . | nindent 8 }}
+        name: {{ include "acmeair.fullname" . }}-customer
+        app.kubernetes.io/name: customer
+        app: customer
+        app.kubernetes.io/version: {{ .Values.acmeairCustomer.image.tag }}
+        version: {{ .Values.acmeairCustomer.image.tag }}
+        app.kubernetes.io/part-of: {{ include "acmeair.fullname" . }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:

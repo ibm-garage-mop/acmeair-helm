@@ -10,8 +10,7 @@ spec:
 {{- end }}
   selector:
     matchLabels:
-      name: {{ include "acmeair.fullname" . }}-main-deployment
-      {{- include "acmeair.selectorLabels" . | nindent 6 }}
+      name: {{ include "acmeair.fullname" . }}-main
   template:
     metadata:
     {{- with .Values.podAnnotations }}
@@ -19,8 +18,12 @@ spec:
         {{- toYaml . | nindent 8 }}
     {{- end }}
       labels:
-        name: {{ include "acmeair.fullname" . }}-main-deployment
-        {{- include "acmeair.selectorLabels" . | nindent 8 }}
+        name: {{ include "acmeair.fullname" . }}-main
+        app: main
+        app.kubernetes.io/name: main
+        app.kubernetes.io/version: {{ .Values.acmeairMain.image.tag }}
+        version: {{ .Values.acmeairMain.image.tag }}
+        app.kubernetes.io/part-of: {{ include "acmeair.fullname" . }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:

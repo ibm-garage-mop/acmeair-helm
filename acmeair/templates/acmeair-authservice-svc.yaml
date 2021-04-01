@@ -8,7 +8,8 @@ spec:
   type: ClusterIP
   ports:
     - port: 9080
+      name: http-liberty
       targetPort: 9080
       protocol: TCP
   selector:
-    name: {{ include "acmeair.fullname" . }}-auth-deployment
+    name: {{ include "acmeair.fullname" . }}-auth
