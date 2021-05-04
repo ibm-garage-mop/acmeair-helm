@@ -2,8 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    app.openshift.io/connects-to: '[{"apiVersion":"apps.openshift.io/v1","kind":"DeploymentConfig","name":"{{ include "acmeair.fullname" . }}-flight-db"},{"apiVersion":"apps/v1","kind":"Deployment","name":"{{ include "acmeair.fullname" . }}-flight-db"}]'
-  name: {{ include "acmeair.fullname" . }}-flightservice
+    app.openshift.io/connects-to: '[{"apiVersion":"apps.openshift.io/v1","kind":"DeploymentConfig","name":"{{ include "acmeair.fullname" . }}-customer-db-ibmi"},{"apiVersion":"apps/v1","kind":"Deployment","name":"{{ include "acmeair.fullname" . }}-customer-db-ibmi"}]'
+  name: {{ include "acmeair.fullname" . }}-customerservice-ibmi
   labels:
     {{- include "acmeair.labels" . | nindent 4 }}
 spec:
@@ -12,7 +12,7 @@ spec:
 {{- end }}
   selector:
     matchLabels:
-      name: {{ include "acmeair.fullname" . }}-flight
+      name: {{ include "acmeair.fullname" . }}-customer
   template:
     metadata:
     {{- with .Values.podAnnotations }}
@@ -20,11 +20,11 @@ spec:
         {{- toYaml . | nindent 8 }}
     {{- end }}
       labels:
-        name: {{ include "acmeair.fullname" . }}-flight
-        app.kubernetes.io/name: flight
-        app: flight
-        app.kubernetes.io/version: {{ .Values.acmeairFlight.image.tag }}
-        version: {{ .Values.acmeairFlight.image.tag }}
+        name: {{ include "acmeair.fullname" . }}-customer
+        app.kubernetes.io/name: customer
+        app: customer
+        app.kubernetes.io/version: {{ .Values.acmeairCustomer.image.tag }}-IBMi
+        version: {{ .Values.acmeairCustomer.image.tag }}-IBMi
         app.kubernetes.io/part-of: {{ include "acmeair.fullname" . }}
     spec:
       {{- with .Values.imagePullSecrets }}
@@ -35,49 +35,40 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
-        - name: acmeair-flightservice-java
+        - name: acmeair-customerservice-java
           env:
+            - name: ACMEAIR_STACKAA_AUTH_URL
+              value: http://{{ include "acmeair.fullname" . }}-auth-service:9080/auth
             - name: SECURE_SERVICE_CALLS
               value: "true"
             - name: PASSWORD
               valueFrom:
                 secretKeyRef:
                   key: database-admin-password
-                  name: {{ include "acmeair.fullname" . }}-flight-db
+                  name: {{ include "acmeair.fullname" . }}-customer-db-ibmi
             - name: USER
               value: admin
             - name: MONGO_HOST
-              value: {{ include "acmeair.fullname" . }}-flight-db
+              value: {{ include "acmeair.fullname" . }}-customer-db-ibmi
             - name: MONGO_USERNAME
               valueFrom:
                 secretKeyRef:
                   key: database-user
-                  name: {{ include "acmeair.fullname" . }}-flight-db
+                  name: {{ include "acmeair.fullname" . }}-customer-db-ibmi
             - name: MONGO_PASSWORD
               valueFrom:
                 secretKeyRef:
                   key: database-password
-                  name: {{ include "acmeair.fullname" . }}-flight-db
+                  name: {{ include "acmeair.fullname" . }}-customer-db-ibmi
             - name: MONGO_DBNAME
               valueFrom:
                 secretKeyRef:
                   key: database-name
-                  name: {{ include "acmeair.fullname" . }}-flight-db
-                  value: jaeger-agent
-            - name: JAEGER_AGENT_PORT
-              value: '6832'
-            - name: JAEGER_ENDPOINT
-              value: 'http://jeager-collector:14268/api/traces'
-            - name: ACCESS_LOGGING_ENABLED
-              value: 'false'
-            - name: TRACE_SPEC
-              value: '*=info'
-            - name: LOGGING_FORMAT
-              value: 'simple'
+                  name: {{ include "acmeair.fullname" . }}-customer-db-ibmi
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.acmeairFlight.image.repository }}:{{ .Values.acmeairFlight.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.acmeairFlight.image.pullPolicy }}
+          image: "{{ .Values.acmeairCustomer.image.repository }}:{{ .Values.acmeairCustomer.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.acmeairCustomer.image.pullPolicy }}
           ports:
             - name: http
               containerPort: 9080
