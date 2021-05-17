@@ -19,6 +19,9 @@ spec:
       annotations:
         {{- toYaml . | nindent 8 }}
     {{- end }}
+        {{- if .Values.istio.enabled }}
+        sidecar.istio.io/inject: "true"
+        {{ end }}
       labels:
         name: {{ include "acmeair.fullname" . }}-booking
         app.kubernetes.io/name: booking
@@ -37,6 +40,12 @@ spec:
       containers:
         - name: acmeair-bookingservice-java
           env:
+            - name: JVM_ARGS
+              value: "-Dcom.acmeair.client.CustomerClient/mp-rest/url=http://{{ include "acmeair.fullname" . }}-customer-service:9080/customer -Dcom.acmeair.client.FlightClient/mp-rest/url={{ include "acmeair.fullname" . }}-flight-service:9080/flight -Dmp.jwt.verify.publickey.location=http://{{ include "acmeair.fullname" . }}-auth-service:9080/auth/getJwk"
+            - name: TRACK_REWARD_MILES
+              value: 'true'
+            - name: SECURE_SERVICE_CALLS
+              value: 'true'
             - name: ACMEAIR_STACKAA_AUTH_URL
               value: http://{{ include "acmeair.fullname" . }}-auth-service:9080/auth
             - name: ACMEAIR_STACKAA_CUSTOMER_URL
@@ -48,7 +57,7 @@ spec:
                 secretKeyRef:
                   key: database-admin-password
                   name: {{ include "acmeair.fullname" . }}-booking-db
-            - name: USER
+            - name: USERNAME
               value: admin
             - name: MONGO_HOST
               value: {{ include "acmeair.fullname" . }}-booking-db
@@ -67,6 +76,9 @@ spec:
                 secretKeyRef:
                   key: database-name
                   name: {{ include "acmeair.fullname" . }}-booking-db
+            {{- with .Values.jaeger }}
+              {{- toYaml . | nindent 12 }}
+            {{- end }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.acmeairBooking.image.repository }}:{{ .Values.acmeairBooking.image.tag | default .Chart.AppVersion }}"

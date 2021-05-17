@@ -19,6 +19,9 @@ spec:
       annotations:
         {{- toYaml . | nindent 8 }}
     {{- end }}
+        {{- if .Values.istio.enabled }}
+        sidecar.istio.io/inject: "true"
+        {{ end }}
       labels:
         name: {{ include "acmeair.fullname" . }}-customer
         app.kubernetes.io/name: customer
@@ -37,6 +40,8 @@ spec:
       containers:
         - name: acmeair-customerservice-java
           env:
+            - name: JVM_ARGS
+              value: "-Dmp.jwt.verify.publickey.location=http://{{ include "acmeair.fullname" . }}-auth-service:9080/auth/getJwk"
             - name: ACMEAIR_STACKAA_AUTH_URL
               value: http://{{ include "acmeair.fullname" . }}-auth-service:9080/auth
             - name: SECURE_SERVICE_CALLS
@@ -46,7 +51,7 @@ spec:
                 secretKeyRef:
                   key: database-admin-password
                   name: {{ include "acmeair.fullname" . }}-customer-db
-            - name: USER
+            - name: USERNAME
               value: admin
             - name: MONGO_HOST
               value: {{ include "acmeair.fullname" . }}-customer-db
@@ -65,6 +70,9 @@ spec:
                 secretKeyRef:
                   key: database-name
                   name: {{ include "acmeair.fullname" . }}-customer-db
+            {{- with .Values.jaeger }}
+              {{- toYaml . | nindent 12 }}
+            {{- end }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.acmeairCustomer.image.repository }}:{{ .Values.acmeairCustomer.image.tag | default .Chart.AppVersion }}"

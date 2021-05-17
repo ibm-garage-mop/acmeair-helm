@@ -17,6 +17,9 @@ spec:
       annotations:
         {{- toYaml . | nindent 8 }}
     {{- end }}
+        {{- if .Values.istio.enabled }}
+        sidecar.istio.io/inject: "true"
+        {{ end }}
       labels:
         name: {{ include "acmeair.fullname" . }}-main
         app: main
@@ -39,6 +42,9 @@ spec:
               value: admin
             - name: PASSWORD
               value: password
+            {{- with .Values.jaeger }}
+              {{- toYaml . | nindent 12 }}
+            {{- end }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.acmeairMain.image.repository }}:{{ .Values.acmeairMain.image.tag | default .Chart.AppVersion }}"

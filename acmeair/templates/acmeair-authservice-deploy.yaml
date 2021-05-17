@@ -17,6 +17,9 @@ spec:
       annotations:
         {{- toYaml . | nindent 8 }}
     {{- end }}
+        {{- if .Values.istio.enabled }}
+        sidecar.istio.io/inject: "true"
+        {{ end }}
       labels:
         name: {{ include "acmeair.fullname" . }}-auth
         app: auth
@@ -35,12 +38,17 @@ spec:
       containers:
         - name: acmeair-authservice-java
           env:
+            - name: JVM_ARGS
+              value: "-Dcom.acmeair.client.CustomerClient/mp-rest/url=http://{{ include "acmeair.fullname" . }}-customer-service:9080/customer"
             - name: USERNAME
               value: admin
             - name: PASSWORD
               value: password
             - name: ACMEAIR_STACKAA_CUSTOMER_URL
               value: http://{{ include "acmeair.fullname" . }}-customer-service:9080/customer
+            {{- with .Values.jaeger }}
+              {{- toYaml . | nindent 12 }}
+            {{- end }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.acmeairAuth.image.repository }}:{{ .Values.acmeairAuth.image.tag | default .Chart.AppVersion }}"

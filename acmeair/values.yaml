@@ -4,7 +4,7 @@
 
 replicaCount: 1
 
-host: acmeair.apps.ocp4.demointel.mpl
+host: acmeair.apps.sandbox.power.mpl
 
 mongodb:
   image:
@@ -25,7 +25,7 @@ acmeairFlight:
     repository: quay.io/schabrolles/acmeair-flightservice-java_ppc64le
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: latest
+    tag: comp-3.3
 
   database:
     name: acmeair-flightdb
@@ -38,7 +38,7 @@ acmeairCustomer:
     repository: quay.io/schabrolles/acmeair-customerservice-java_ppc64le
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: latest
+    tag: comp-3.3
 
   database:
     name: acmeair-customerdb
@@ -51,7 +51,7 @@ acmeairBooking:
     repository: quay.io/schabrolles/acmeair-bookingservice-java_ppc64le
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: latest
+    tag: comp-3.3
 
   database:
     name: acmeair-bookingdb
@@ -64,14 +64,14 @@ acmeairAuth:
     repository: quay.io/schabrolles/acmeair-authservice-java_ppc64le
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: latest
+    tag: comp-3.3
 
 acmeairMain:
   image:
     repository: quay.io/schabrolles/acmeair-mainservice-java_ppc64le
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: latest
+    tag: comp-3.3
 
 imagePullSecrets: []
 nameOverride: ""
@@ -79,7 +79,22 @@ fullnameOverride: ""
 
 
 istio:
-  enabled: false
+  enabled: true
+
+jaeger:
+  - name: JAEGER_AGENT_HOST
+    value: jaeger-agent.istio-system.svc
+  - name: JAEGER_AGENT_PORT
+    value: '6832'
+  - name: JAEGER_ENDPOINT
+    value: 'http://jaeger-collector.istio-system.svc:14268/api/traces'
+  - name: ACCESS_LOGGING_ENABLED
+    value: 'true'
+  - name: TRACE_SPEC
+    value: '*=all'
+  - name: LOGGING_FORMAT
+    value: 'json'
+
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -93,7 +108,6 @@ serviceAccount:
 podAnnotations: 
   prometheus.io/port: "9080"
   prometheus.io/scrape: "true"
-  sidecar.istio.io/inject: "true"
 
 podSecurityContext: {}
   # fsGroup: 2000

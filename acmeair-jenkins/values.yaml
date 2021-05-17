@@ -1,0 +1,3 @@
+host: jenkins.apps.sandbox.power.mpl
+istio:
+  enabled: false
