@@ -79,7 +79,7 @@ fullnameOverride: ""
 
 
 istio:
-  enabled: true
+  enabled: false
 
 jaeger:
   - name: JAEGER_AGENT_HOST

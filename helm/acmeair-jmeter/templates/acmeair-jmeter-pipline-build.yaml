@@ -1,3 +1,4 @@
+{{- if .Values.pipeline.enabled }}
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
@@ -8,11 +9,11 @@ spec:
       description: git repository
       name: source_repo
       type: string
-    - default: ./jmeter/container
+    - default: ./src/jmeter/container
       description: directory where Dockerfile is located
       name: context_dir
       type: string
-    - default: 'quay.io/schabrolles/acmeair-jmeter_ppc64le:latest'
+    - default: '{{ .Values.acmeairJmeterImage }}'
       description: output image name with registry
       name: output_image
       type: string
@@ -22,7 +23,7 @@ spec:
         - name: url
           value: $(params.source_repo)
         - name: revision
-          value: istio
+          value: dev 
         - name: submodules
           value: 'true'
         - name: depth
@@ -66,3 +67,4 @@ spec:
           workspace: acmeair-jmeter
   workspaces:
     - name: acmeair-jmeter
+{{- end }}
