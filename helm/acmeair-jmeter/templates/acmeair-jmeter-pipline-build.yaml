@@ -9,6 +9,10 @@ spec:
       description: git repository
       name: source_repo
       type: string
+    - default: 'master'
+      description: git branch
+      name: source_revision
+      type: string
     - default: ./src/jmeter/container
       description: directory where Dockerfile is located
       name: context_dir
@@ -23,7 +27,7 @@ spec:
         - name: url
           value: $(params.source_repo)
         - name: revision
-          value: dev 
+          value: $(params.source_revision) 
         - name: submodules
           value: 'true'
         - name: depth
