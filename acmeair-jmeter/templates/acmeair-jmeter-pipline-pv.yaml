@@ -1,0 +1,15 @@
+{{- if .Values.pipeline.enabled }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: acmeair-jmeter-build
+  labels:
+    name: acmeair-jmeter-build
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+  volumeMode: Filesystem
+{{- end }}

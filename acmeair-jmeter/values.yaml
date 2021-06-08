@@ -1,0 +1,9 @@
+# Default values for acmeair.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+acmeairHost: acmeair.apps.sandbox.power.mpl
+acmeairJmeterImage: quay.io/schabrolles/acmeair-jmeter_ppc64le:latest
+
+pipeline:
+  enabled: true
