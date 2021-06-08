@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: acmeari-jmeter-build
+  name: acmeair-jmeter-build
 spec:
   params:
     - default: 'https://gitlab.com/PSLC/acmeair-ocp-helm.git'
