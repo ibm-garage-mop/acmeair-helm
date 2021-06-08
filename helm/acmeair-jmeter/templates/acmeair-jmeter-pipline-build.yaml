@@ -21,6 +21,10 @@ spec:
       description: output image name with registry
       name: output_image
       type: string
+    - default: 'true'
+      description: container registry TLS verify
+      name: TLS_verify
+      type: string
   tasks:
     - name: git-clone
       params:
@@ -58,7 +62,7 @@ spec:
         - name: CONTEXT
           value: $(params.context_dir)
         - name: TLSVERIFY
-          value: 'true'
+          value: $(params.TLS_verify) 
         - name: FORMAT
           value: oci
       runAfter:
