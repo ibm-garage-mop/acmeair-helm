@@ -1,0 +1,347 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: build-acmeair
+  namespace: acmeair
+spec:
+  params:
+  - default: microprofile-3.0
+    name: acmeair-revision
+    type: string
+  tasks:
+  - name: git-clone-flight
+    params:
+    - name: url
+      value: https://github.com/blueperf/acmeair-flightservice-java.git
+    - name: revision
+      value: $(params.acmeair-revision)
+    - name: submodules
+      value: "true"
+    - name: depth
+      value: "1"
+    - name: sslVerify
+      value: "true"
+    - name: deleteExisting
+      value: "true"
+    - name: verbose
+      value: "true"
+    taskRef:
+      kind: ClusterTask
+      name: git-clone
+    workspaces:
+    - name: output
+      workspace: flight
+  - name: maven-flight
+    params:
+    - name: MAVEN_IMAGE
+      value: quay.io/schabrolles/maven_ppc64le:latest
+    - name: GOALS
+      value:
+      - clean
+      - package
+    - name: PROXY_PROTOCOL
+      value: http
+    runAfter:
+    - git-clone-flight
+    taskRef:
+      kind: ClusterTask
+      name: maven
+    workspaces:
+    - name: maven-settings
+      workspace: flight
+    - name: source
+      workspace: flight
+  - name: buildah-flight
+    params:
+    - name: IMAGE
+      value: quay.io/schabrolles/acmeair-flightservice-java_ppc64le:$(params.acmeair-revision)
+    - name: BUILDER_IMAGE
+      value: registry.redhat.io/rhel8/buildah@sha256:180c4d9849b6ab0e5465d30d4f3a77765cf0d852ca1cb1efb59d6e8c9f90d467
+    - name: STORAGE_DRIVER
+      value: overlay
+    - name: DOCKERFILE
+      value: ./Dockerfile
+    - name: CONTEXT
+      value: .
+    - name: TLSVERIFY
+      value: "false"
+    - name: FORMAT
+      value: oci
+    runAfter:
+    - maven-flight
+    taskRef:
+      kind: ClusterTask
+      name: buildah
+    workspaces:
+    - name: source
+      workspace: flight
+  - name: git-clone-customer
+    params:
+    - name: url
+      value: https://github.com/blueperf/acmeair-customerservice-java.git
+    - name: revision
+      value: $(params.acmeair-revision)
+    - name: submodules
+      value: "true"
+    - name: depth
+      value: "1"
+    - name: sslVerify
+      value: "true"
+    - name: deleteExisting
+      value: "true"
+    - name: verbose
+      value: "true"
+    taskRef:
+      kind: ClusterTask
+      name: git-clone
+    workspaces:
+    - name: output
+      workspace: customer
+  - name: maven-customer
+    params:
+    - name: MAVEN_IMAGE
+      value: quay.io/schabrolles/maven_ppc64le:latest
+    - name: GOALS
+      value:
+      - clean
+      - package
+    - name: PROXY_PROTOCOL
+      value: http
+    runAfter:
+    - git-clone-customer
+    taskRef:
+      kind: ClusterTask
+      name: maven
+    workspaces:
+    - name: maven-settings
+      workspace: customer
+    - name: source
+      workspace: customer
+  - name: buildah-customer
+    params:
+    - name: IMAGE
+      value: quay.io/schabrolles/acmeair-customerservice-java_ppc64le:$(params.acmeair-revision)
+    - name: BUILDER_IMAGE
+      value: registry.redhat.io/rhel8/buildah@sha256:180c4d9849b6ab0e5465d30d4f3a77765cf0d852ca1cb1efb59d6e8c9f90d467
+    - name: STORAGE_DRIVER
+      value: overlay
+    - name: DOCKERFILE
+      value: ./Dockerfile
+    - name: CONTEXT
+      value: .
+    - name: TLSVERIFY
+      value: "true"
+    - name: FORMAT
+      value: oci
+    runAfter:
+    - maven-customer
+    taskRef:
+      kind: ClusterTask
+      name: buildah
+    workspaces:
+    - name: source
+      workspace: customer
+  - name: git-clone-booking
+    params:
+    - name: url
+      value: https://github.com/blueperf/acmeair-bookingservice-java.git
+    - name: revision
+      value: $(params.acmeair-revision)
+    - name: submodules
+      value: "true"
+    - name: depth
+      value: "1"
+    - name: sslVerify
+      value: "true"
+    - name: deleteExisting
+      value: "true"
+    - name: verbose
+      value: "true"
+    taskRef:
+      kind: ClusterTask
+      name: git-clone
+    workspaces:
+    - name: output
+      workspace: booking
+  - name: maven-booking
+    params:
+    - name: MAVEN_IMAGE
+      value: quay.io/schabrolles/maven_ppc64le:latest
+    - name: GOALS
+      value:
+      - clean
+      - package
+    - name: PROXY_PROTOCOL
+      value: http
+    runAfter:
+    - git-clone-booking
+    taskRef:
+      kind: ClusterTask
+      name: maven
+    workspaces:
+    - name: maven-settings
+      workspace: booking
+    - name: source
+      workspace: booking
+  - name: buildah-booking
+    params:
+    - name: IMAGE
+      value: quay.io/schabrolles/acmeair-bookingservice-java_ppc64le:$(params.acmeair-revision)
+    - name: BUILDER_IMAGE
+      value: registry.redhat.io/rhel8/buildah@sha256:180c4d9849b6ab0e5465d30d4f3a77765cf0d852ca1cb1efb59d6e8c9f90d467
+    - name: STORAGE_DRIVER
+      value: overlay
+    - name: DOCKERFILE
+      value: ./Dockerfile
+    - name: CONTEXT
+      value: .
+    - name: TLSVERIFY
+      value: "false"
+    - name: FORMAT
+      value: oci
+    runAfter:
+    - maven-booking
+    taskRef:
+      kind: ClusterTask
+      name: buildah
+    workspaces:
+    - name: source
+      workspace: booking
+  - name: git-clone-auth
+    params:
+    - name: url
+      value: https://github.com/blueperf/acmeair-authservice-java.git
+    - name: revision
+      value: $(params.acmeair-revision)
+    - name: submodules
+      value: "true"
+    - name: depth
+      value: "1"
+    - name: sslVerify
+      value: "true"
+    - name: deleteExisting
+      value: "true"
+    - name: verbose
+      value: "true"
+    taskRef:
+      kind: ClusterTask
+      name: git-clone
+    workspaces:
+    - name: output
+      workspace: auth
+  - name: maven-auth
+    params:
+    - name: MAVEN_IMAGE
+      value: quay.io/schabrolles/maven_ppc64le:latest
+    - name: GOALS
+      value:
+      - clean
+      - package
+    - name: PROXY_PROTOCOL
+      value: http
+    runAfter:
+    - git-clone-auth
+    taskRef:
+      kind: ClusterTask
+      name: maven
+    workspaces:
+    - name: maven-settings
+      workspace: auth
+    - name: source
+      workspace: auth
+  - name: buildah-auth
+    params:
+    - name: IMAGE
+      value: quay.io/schabrolles/acmeair-authservice-java_ppc64le:$(params.acmeair-revision)
+    - name: BUILDER_IMAGE
+      value: registry.redhat.io/rhel8/buildah@sha256:180c4d9849b6ab0e5465d30d4f3a77765cf0d852ca1cb1efb59d6e8c9f90d467
+    - name: STORAGE_DRIVER
+      value: overlay
+    - name: DOCKERFILE
+      value: ./Dockerfile
+    - name: CONTEXT
+      value: .
+    - name: TLSVERIFY
+      value: "false"
+    - name: FORMAT
+      value: oci
+    runAfter:
+    - maven-auth
+    taskRef:
+      kind: ClusterTask
+      name: buildah
+    workspaces:
+    - name: source
+      workspace: auth
+  - name: git-clone-main
+    params:
+    - name: url
+      value: https://github.com/blueperf/acmeair-mainservice-java.git
+    - name: revision
+      value: $(params.acmeair-revision)
+    - name: submodules
+      value: "true"
+    - name: depth
+      value: "1"
+    - name: sslVerify
+      value: "true"
+    - name: deleteExisting
+      value: "true"
+    - name: verbose
+      value: "true"
+    taskRef:
+      kind: ClusterTask
+      name: git-clone
+    workspaces:
+    - name: output
+      workspace: main
+  - name: maven-main
+    params:
+    - name: MAVEN_IMAGE
+      value: quay.io/schabrolles/maven_ppc64le:latest
+    - name: GOALS
+      value:
+      - clean
+      - package
+    - name: PROXY_PROTOCOL
+      value: http
+    runAfter:
+    - git-clone-main
+    taskRef:
+      kind: ClusterTask
+      name: maven
+    workspaces:
+    - name: maven-settings
+      workspace: auth
+    - name: source
+      workspace: main
+  - name: buildah-main
+    params:
+    - name: IMAGE
+      value: quay.io/schabrolles/acmeair-mainservice-java_ppc64le:$(params.acmeair-revision)
+    - name: BUILDER_IMAGE
+      value: registry.redhat.io/rhel8/buildah@sha256:180c4d9849b6ab0e5465d30d4f3a77765cf0d852ca1cb1efb59d6e8c9f90d467
+    - name: STORAGE_DRIVER
+      value: overlay
+    - name: DOCKERFILE
+      value: ./Dockerfile
+    - name: CONTEXT
+      value: .
+    - name: TLSVERIFY
+      value: "false"
+    - name: FORMAT
+      value: oci
+    runAfter:
+    - maven-main
+    taskRef:
+      kind: ClusterTask
+      name: buildah
+    workspaces:
+    - name: source
+      workspace: main
+  workspaces:
+  - name: flight
+  - name: customer
+  - name: booking
+  - name: main
+  - name: auth

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  annotations:
+  labels:
+    app: jmeter
+    name: acmeair-jmeter
+  name: acmeair-jmeter
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+

@@ -1,0 +1,188 @@
+{{- if .Values.istio.enabled }}
+kind: Gateway
+apiVersion: networking.istio.io/v1alpha3
+metadata:
+  name: {{ include "acmeair.fullname" . }}-gw
+  labels:
+    kiali_wizard: Gateway
+spec:
+  servers:
+    - hosts:
+        - {{ .Values.host }}
+      port:
+        name: http
+        number: 80
+        protocol: HTTP
+  selector:
+    istio: ingressgateway
+# ---
+# apiVersion: networking.istio.io/v1beta1
+# kind: VirtualService
+# metadata:
+#   name: {{ include "acmeair.fullname" . }}-main
+# spec:
+#   gateways:
+#   - {{ include "acmeair.fullname" . }}-gw
+#   hosts:
+#   - {{ .Values.host }}
+#   http:
+#   - match:
+#     - uri:
+#         prefix: /acmeair
+#     route:
+#     - destination:
+#         host: {{ include "acmeair.fullname" . }}-main-service
+#         port:
+#           number: 9080
+# ---
+# apiVersion: networking.istio.io/v1beta1
+# kind: VirtualService
+# metadata:
+#   name: {{ include "acmeair.fullname" . }}-auth
+# spec:
+#   gateways:
+#   - {{ include "acmeair.fullname" . }}-gw
+#   hosts:
+#   - {{ .Values.host }}
+#   http:
+#   - match:
+#     - uri:
+#         prefix: /auth
+#     route:
+#     - destination:
+#         host: {{ include "acmeair.fullname" . }}-auth-service
+#         port:
+#           number: 9080
+# ---
+# apiVersion: networking.istio.io/v1beta1
+# kind: VirtualService
+# metadata:
+#   name: {{ include "acmeair.fullname" . }}-booking
+# spec:
+#   gateways:
+#   - {{ include "acmeair.fullname" . }}-gw
+#   hosts:
+#   - {{ .Values.host }}
+#   http:
+#   - match:
+#     - uri:
+#         prefix: /booking
+#     route:
+#     - destination:
+#         host: {{ include "acmeair.fullname" . }}-booking-service
+#         port:
+#           number: 9080
+# ---
+# kind: VirtualService
+# apiVersion: networking.istio.io/v1alpha3
+# metadata:
+#   name: {{ include "acmeair.fullname" . }}-customer
+#   labels:
+#     kiali_wizard: traffic_shifting
+# spec:
+#   hosts:
+#     - {{ .Values.host }}
+#     - {{ include "acmeair.fullname" . }}-customer-service.svc.cluster.local
+#   gateways:
+#     - {{ include "acmeair.fullname" . }}-gw
+#   http:
+#     - match:
+#         - uri:
+#             prefix: /customer
+#       route:
+#         - destination:
+#             host: acmeair-customer-service.acmeair.svc.cluster.local
+#             subset: mongo-linux
+#       mirror: 
+#         host: acmeair-customer-service.acmeair.svc.cluster.local
+#         subset: db2-ibmi
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: {{ include "acmeair.fullname" . }}-customer
+  labels:
+    kiali_wizard: traffic_shifting
+spec:
+  host: {{ include "acmeair.fullname" . }}-customer-service
+  subsets:
+    - name: mongo-linux
+      labels:
+        version: {{ .Values.acmeairCustomer.image.tag }}
+    - name: db2-ibmi
+      labels:
+        version: {{ .Values.acmeairCustomer.image.tag }}-IBMi
+# ---
+# apiVersion: networking.istio.io/v1beta1
+# kind: VirtualService
+# metadata:
+#   name: {{ include "acmeair.fullname" . }}-flight
+# spec:
+#   gateways:
+#   - {{ include "acmeair.fullname" . }}-gw
+#   hosts:
+#   - {{ .Values.host }}
+#   http:
+#   - match:
+#     - uri:
+#         prefix: /flight
+#     route:
+#     - destination:
+#         host: {{ include "acmeair.fullname" . }}-flight-service
+#         port:
+#           number: 9080
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ include "acmeair.fullname" . }}
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - {{ include "acmeair.fullname" . }}-gw
+  http:
+  - match:
+    - uri:
+        prefix: /flight
+    route:
+    - destination:
+        port:
+          number: 9080
+        host: {{ include "acmeair.fullname" . }}-flight-service 
+  - match:
+    - uri:
+        prefix: /booking
+    route:
+    - destination:
+        port:
+          number: 9080
+        host: {{ include "acmeair.fullname" . }}-booking-service
+  - match:
+    - uri:
+        prefix: /customer
+    route:
+      - destination:
+          host: acmeair-customer-service.acmeair.svc.cluster.local
+          subset: mongo-linux
+    mirror: 
+      host: acmeair-customer-service.acmeair.svc.cluster.local
+      subset: db2-ibmi
+  - match:
+    - uri:
+        prefix: /auth
+    route:
+    - destination:
+        port:
+          number: 9080
+        host: {{ include "acmeair.fullname" . }}-auth-service 
+  - match:
+    - uri:
+        prefix: /acmeair
+    route:
+    - destination:
+        port:
+          number: 9080
+        host: {{ include "acmeair.fullname" . }}-main-service
+{{- end }}
+

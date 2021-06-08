@@ -1,0 +1,70 @@
+{{- if .Values.pipeline.enabled }}
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: acmeari-jmeter-build
+spec:
+  params:
+    - default: 'https://gitlab.com/PSLC/acmeair-ocp-helm.git'
+      description: git repository
+      name: source_repo
+      type: string
+    - default: ./src/jmeter/container
+      description: directory where Dockerfile is located
+      name: context_dir
+      type: string
+    - default: '{{ .Values.acmeairJmeterImage }}'
+      description: output image name with registry
+      name: output_image
+      type: string
+  tasks:
+    - name: git-clone
+      params:
+        - name: url
+          value: $(params.source_repo)
+        - name: revision
+          value: dev 
+        - name: submodules
+          value: 'true'
+        - name: depth
+          value: '1'
+        - name: sslVerify
+          value: 'true'
+        - name: deleteExisting
+          value: 'true'
+        - name: verbose
+          value: 'true'
+      taskRef:
+        kind: ClusterTask
+        name: git-clone
+      workspaces:
+        - name: output
+          workspace: acmeair-jmeter
+    - name: buildah
+      params:
+        - name: IMAGE
+          value: $(params.output_image)
+        - name: BUILDER_IMAGE
+          value: >-
+            registry.redhat.io/rhel8/buildah@sha256:180c4d9849b6ab0e5465d30d4f3a77765cf0d852ca1cb1efb59d6e8c9f90d467
+        - name: STORAGE_DRIVER
+          value: overlay
+        - name: DOCKERFILE
+          value: $(params.context_dir)/Dockerfile
+        - name: CONTEXT
+          value: $(params.context_dir)
+        - name: TLSVERIFY
+          value: 'true'
+        - name: FORMAT
+          value: oci
+      runAfter:
+        - git-clone
+      taskRef:
+        kind: ClusterTask
+        name: buildah
+      workspaces:
+        - name: source
+          workspace: acmeair-jmeter
+  workspaces:
+    - name: acmeair-jmeter
+{{- end }}

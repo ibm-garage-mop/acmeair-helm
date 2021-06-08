@@ -1,0 +1,34 @@
+{{- if .Values.istio.enabled }}
+kind: Gateway
+apiVersion: networking.istio.io/v1alpha3
+metadata:
+  name: jenkins-gw
+  labels:
+    kiali_wizard: Gateway
+spec:
+  servers:
+    - hosts:
+        - {{ .Values.host }}
+      port:
+        name: http
+        number: 80
+        protocol: HTTP
+  selector:
+    istio: ingressgateway
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: jenkins
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - jenkins-gw
+  http:
+  - route:
+    - destination:
+        port:
+          number: 80
+        host: jenkins
+{{- end }}

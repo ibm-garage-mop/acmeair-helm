@@ -1,0 +1,33 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  annotations:
+    pipeline.openshift.io/started-by: admin
+  name: build-acmeair-mp32
+  namespace: acmeair
+  labels:
+    tekton.dev/pipeline: build-acmeair
+spec:
+  params:
+    - name: acmeair-revision
+      value: microprofile-3.2
+  pipelineRef:
+    name: build-acmeair
+  serviceAccountName: pipeline
+  timeout: 1h0m0s
+  workspaces:
+    - name: flight
+      persistentVolumeClaim:
+        claimName: flight-pipeline
+    - name: customer
+      persistentVolumeClaim:
+        claimName: custom-pipeline
+    - name: booking
+      persistentVolumeClaim:
+        claimName: booking-pipeline
+    - name: main
+      persistentVolumeClaim:
+        claimName: main-pipeline
+    - name: auth
+      persistentVolumeClaim:
+        claimName: auth-pipeline
