@@ -6,4 +6,4 @@ acmeairHost: acmeair.apps.sandbox.power.mpl
 acmeairJmeterImage: quay.io/schabrolles/acmeair-jmeter_ppc64le:latest
 
 pipeline:
-  enabled: true
+  enabled: false
