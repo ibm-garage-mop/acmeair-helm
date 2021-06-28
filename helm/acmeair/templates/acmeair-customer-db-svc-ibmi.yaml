@@ -14,4 +14,4 @@ spec:
       name: mongo
   selector:
     name: {{ include "acmeair.fullname" . }}-customer-db-ibmi
-{{-end }}
+{{- end }}

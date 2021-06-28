@@ -13,9 +13,9 @@ mongodb:
     # Overrides the image tag whose default is the chart appVersion.
     tag: 3.6
    
-    resources: 
-      limits:
-        memory: 512Mi
+  resources: 
+    limits:
+      memory: 512Mi
 
   annotations:
     template.alpha.openshift.io/wait-for-ready: "true"
