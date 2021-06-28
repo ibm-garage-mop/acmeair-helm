@@ -3,7 +3,8 @@
 # Declare variables to be passed into your templates.
 
 acmeairHost: acmeair.apps.sandbox.power.mpl
-acmeairJmeterImage: quay.io/schabrolles/acmeair-jmeter_ppc64le:latest
+acmeairJmeterImage: image-registry.openshift-image-registry.svc:5000/acmeair/acmeair-jmeter
+registryTLSverify: false
 
 pipeline:
   enabled: false

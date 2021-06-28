@@ -21,7 +21,7 @@ spec:
       description: output image name with registry
       name: output_image
       type: string
-    - default: 'true'
+    - default: '{{ .Values.registryTLSverify }}'
       description: container registry TLS verify
       name: TLS_verify
       type: string
