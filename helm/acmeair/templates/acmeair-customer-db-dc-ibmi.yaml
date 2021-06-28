@@ -1,3 +1,4 @@
+{{- if .Values.istio.enabled }}
 apiVersion: apps.openshift.io/v1
 kind: DeploymentConfig
 metadata:
@@ -123,3 +124,4 @@ spec:
         namespace: openshift
     type: ImageChange
   - type: ConfigChange
+{{-end }}
